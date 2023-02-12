@@ -96,4 +96,11 @@ public class MainActivity extends AppCompatActivity {
     public boolean isValidEmail(CharSequence target) {
         return (!TextUtils.isEmpty(target) && Patterns.EMAIL_ADDRESS.matcher(target).matches());
     }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        email_editText.setText("");
+        pin_editText.setText("");
+    }
 }

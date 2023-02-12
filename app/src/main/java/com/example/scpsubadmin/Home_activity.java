@@ -22,10 +22,13 @@ import java.util.List;
 
 public class Home_activity extends AppCompatActivity {
 
+    DatabaseReference checkReference;
     Button registerUser_Button;
+    Button logout_Button;
     Button usersList_Button;
     DatabaseReference registrationRef;
     DatabaseReference databaseReference;
+    DatabaseReference tokenCheckReference;
     RecyclerView parkingSlots_recyclerView;
     Adapter_parkingSlotsRecyclerView adapter_parkingSlotsRecyclerView;
 
@@ -41,6 +44,7 @@ public class Home_activity extends AppCompatActivity {
         parkingSlotsName_List = new ArrayList<>();
         parkingSlots_List = new ArrayList<>();
 
+        tokenCheckReference = FirebaseDatabase.getInstance().getReference("Tokens");
         databaseReference = FirebaseDatabase.getInstance().getReference("Slots/"+AdminDetails_class.getInstance().parking);
 
         Toast.makeText(this, AdminDetails_class.getInstance().getParking(), Toast.LENGTH_SHORT).show();
@@ -65,6 +69,7 @@ public class Home_activity extends AppCompatActivity {
 
 
         registrationRef = FirebaseDatabase.getInstance().getReference("Registration/"+AdminDetails_class.getInstance().parking);
+        registrationRef = FirebaseDatabase.getInstance().getReference("Registration/"+AdminDetails_class.getInstance().parking);
         registrationRef.setValue(0);
 
         usersList_Button = findViewById(R.id.usersList_Button);
@@ -77,6 +82,13 @@ public class Home_activity extends AppCompatActivity {
         });
 
         registerUser_Button = findViewById(R.id.registerUser_Button);
+        logout_Button = findViewById(R.id.logout_Button);
+        logout_Button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
         registerUser_Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -91,10 +103,26 @@ public class Home_activity extends AppCompatActivity {
                             Toast.makeText(Home_activity.this, "Registration Canceled", Toast.LENGTH_SHORT).show();
                         }
                         else {
-                            Intent intent = new Intent(Home_activity.this,Register_user_activity.class);
-                            intent.putExtra("TOKEN",snapshot.getValue().toString());
-                            registrationRef.setValue(0);
-                            startActivity(intent);
+                            tokenCheckReference.child(snapshot.getValue().toString()).addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot snapshot1) {
+                                    if (snapshot1.exists()){
+                                        Toast.makeText(Home_activity.this, "Token already exists!", Toast.LENGTH_SHORT).show();
+                                        registrationRef.setValue(0);
+                                    }else {
+                                        Intent intent = new Intent(Home_activity.this,Register_user_activity.class);
+                                        intent.putExtra("TOKEN",snapshot.getValue().toString());
+                                        registrationRef.setValue(0);
+                                        startActivity(intent);
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError error) {
+
+                                }
+                            });
+
                         }
                     }
 
