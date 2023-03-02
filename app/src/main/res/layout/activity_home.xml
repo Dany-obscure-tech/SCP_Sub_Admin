@@ -20,6 +20,14 @@
             android:text="Register User" />
 
         <Button
+            android:id="@+id/users_Button"
+            android:layout_below="@+id/logs_Button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Users" />
+
+        <Button
+            android:visibility="gone"
             android:id="@+id/usersList_Button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

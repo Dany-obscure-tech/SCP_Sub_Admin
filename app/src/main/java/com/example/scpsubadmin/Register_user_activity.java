@@ -133,6 +133,8 @@ public class Register_user_activity extends AppCompatActivity {
 
         databaseReference.child("Subscription").child(userName_editText.getText().toString()).child("valid").setValue("0");
         databaseReference.child("Subscription").child(userName_editText.getText().toString()).child("Duration").setValue("0");
+        databaseReference.child("Subscription").child(userName_editText.getText().toString()).child("due_date").setValue("0");
+        databaseReference.child("Subscription").child(userName_editText.getText().toString()).child("time").setValue("0");
 
         databaseReference.child("Parking_users").child(AdminDetails_class.getInstance().parking).child(userName_editText.getText().toString()).setValue(userName_editText.getText().toString());
 

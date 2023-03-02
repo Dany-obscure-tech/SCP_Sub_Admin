@@ -13,6 +13,9 @@
         android:theme="@style/Theme.AdminSCP"
         tools:targetApi="31">
         <activity
+            android:name=".ActivityUsersList"
+            android:exported="false" />
+        <activity
             android:name=".Users_lis_activity"
             android:exported="false">
             <meta-data
@@ -29,8 +32,6 @@
         <activity
             android:name=".Home_activity"
             android:exported="true">
-
-
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
@@ -43,6 +44,7 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
