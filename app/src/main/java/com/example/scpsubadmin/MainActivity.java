@@ -123,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
                                     if (task.isSuccessful()) {
-
+                                        Toast.makeText(MainActivity.this, "Check your email", Toast.LENGTH_SHORT).show();
                                     }
                                 }
                             });

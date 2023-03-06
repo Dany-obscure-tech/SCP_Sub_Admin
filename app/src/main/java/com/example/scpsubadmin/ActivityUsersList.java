@@ -27,10 +27,13 @@ public class ActivityUsersList extends AppCompatActivity {
     DatabaseReference SubscriptionRef;
 
     List<String> username_List;
+    List<String> pin_List;
+    List<String> email_List;
     List<String> name_List;
     List<String> parking_List;
     List<String> phno_List;
     List<String> token_List;
+    List<String> carno_List;
     List<String> wallet_List;
     List<String> duration_List;
     List<String> duedate_List;
@@ -46,10 +49,13 @@ public class ActivityUsersList extends AppCompatActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         username_List = new ArrayList<>();
+        pin_List = new ArrayList<>();
+        email_List = new ArrayList<>();
         name_List = new ArrayList<>();
         parking_List = new ArrayList<>();
         phno_List = new ArrayList<>();
         token_List = new ArrayList<>();
+        carno_List = new ArrayList<>();
         wallet_List = new ArrayList<>();
         duration_List = new ArrayList<>();
         duedate_List = new ArrayList<>();
@@ -65,10 +71,13 @@ public class ActivityUsersList extends AppCompatActivity {
                 for (DataSnapshot snapshot1:snapshot.child("Users").getChildren()){
                     if (snapshot1.child("parking").getValue().toString().equals(AdminDetails_class.getInstance().getParking())){
                         username_List.add(snapshot1.getKey());
+                        pin_List.add(snapshot1.child("pin").getValue().toString());
+                        email_List.add(snapshot1.child("email").getValue().toString());
                         name_List.add(snapshot1.child("name").getValue().toString());
                         parking_List.add(snapshot1.child("parking").getValue().toString());
                         phno_List.add(snapshot1.child("ph_no").getValue().toString());
                         token_List.add(snapshot1.child("token").getValue().toString());
+                        carno_List.add(snapshot1.child("car_no").getValue().toString());
 
                         duration_List.add(snapshot.child("Subscription").child(snapshot1.getKey()).child("Duration").getValue().toString());
                         duedate_List.add(snapshot.child("Subscription").child(snapshot1.getKey()).child("due_date").getValue().toString());
@@ -78,7 +87,7 @@ public class ActivityUsersList extends AppCompatActivity {
 
 
                 }
-                adapter_userListRecyclerView = new Adapter_userListRecyclerView(ActivityUsersList.this,username_List, name_List, parking_List, phno_List, token_List, wallet_List, duration_List, duedate_List);
+                adapter_userListRecyclerView = new Adapter_userListRecyclerView(ActivityUsersList.this,username_List,pin_List,email_List, name_List, parking_List, phno_List, token_List,carno_List, wallet_List, duration_List, duedate_List);
                 parkingList_recyclerView.setAdapter(adapter_userListRecyclerView);
             }
             @Override
@@ -96,5 +105,11 @@ public class ActivityUsersList extends AppCompatActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        recreate();
     }
 }

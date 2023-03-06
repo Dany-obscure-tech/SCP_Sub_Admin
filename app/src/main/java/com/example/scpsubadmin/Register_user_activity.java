@@ -4,7 +4,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Patterns;
@@ -15,11 +14,17 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import java.util.Locale;
 
 public class Register_user_activity extends AppCompatActivity {
     TextView tokenNumber_textView;
@@ -29,9 +34,12 @@ public class Register_user_activity extends AppCompatActivity {
     EditText userName_editText;
     EditText pin_editText;
     Button register_Button;
+    EditText email_editText;
 
     DatabaseReference databaseReference;
     DatabaseReference usernameCheckReference;
+
+    FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +50,9 @@ public class Register_user_activity extends AppCompatActivity {
 
         // showing the back button in action bar
         actionBar.setDisplayHomeAsUpEnabled(true);
+
+        mAuth = FirebaseAuth.getInstance();
+        email_editText = (EditText) findViewById(R.id.email_editText);
 
         tokenNumber_textView = findViewById(R.id.tokenNumber_textView);
         tokenNumber_textView.setText(getIntent().getStringExtra("TOKEN"));
@@ -61,15 +72,15 @@ public class Register_user_activity extends AppCompatActivity {
             public void onClick(View view) {
                 Boolean valid = true;
                 if (name_editText.getText().toString().isEmpty()){
-                    name_editText.setError("Enter email");
+                    name_editText.setError("Enter name");
                     valid = false;
                 }
                 if (carNo_editText.getText().toString().isEmpty()){
-                    carNo_editText.setError("Enter email");
+                    carNo_editText.setError("Enter car no");
                     valid = false;
                 }
                 if (phno_editText.getText().toString().isEmpty()){
-                    phno_editText.setError("Enter email");
+                    phno_editText.setError("Enter phno");
                     valid = false;
                 }
 
@@ -77,12 +88,20 @@ public class Register_user_activity extends AppCompatActivity {
                     userName_editText.setError("Enter username");
                     valid = false;
                 }
-
+                if (pin_editText.getText().toString().length()<6){
+                    pin_editText.setError("6 length");
+                    valid = false;
+                }
                 if (pin_editText.getText().toString().isEmpty()){
                     pin_editText.setError("Enter pin");
                     valid = false;
+                }if (email_editText.getText().toString().isEmpty()){
+                    email_editText.setError("This field can not be empty");
+                    valid = false;
+                }if (!isValidEmail(email_editText.getText().toString())){
+                    email_editText.setError("Invaid Email");
+                    valid = false;
                 }
-
 
                 if (valid){
 
@@ -120,31 +139,43 @@ public class Register_user_activity extends AppCompatActivity {
     }
 
     private void dataUpload() {
-        databaseReference.child("Users").child(userName_editText.getText().toString()).child("name").setValue(name_editText.getText().toString());
-        databaseReference.child("Users").child(userName_editText.getText().toString()).child("car_no").setValue(carNo_editText.getText().toString());
-        databaseReference.child("Users").child(userName_editText.getText().toString()).child("ph_no").setValue(phno_editText.getText().toString());
-        databaseReference.child("Users").child(userName_editText.getText().toString()).child("pin").setValue(pin_editText.getText().toString());
-        databaseReference.child("Users").child(userName_editText.getText().toString()).child("parking").setValue(AdminDetails_class.getInstance().parking);
-        databaseReference.child("Users").child(userName_editText.getText().toString()).child("token").setValue(getIntent().getStringExtra("TOKEN"));
 
-        databaseReference.child("Wallet").child(userName_editText.getText().toString()).setValue(5000);
+        mAuth.createUserWithEmailAndPassword(email_editText.getText().toString(),pin_editText.getText().toString()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                if (task.isSuccessful()){
+                    databaseReference.child("Users").child(userName_editText.getText().toString()).child("name").setValue(name_editText.getText().toString());
+                    databaseReference.child("Users").child(userName_editText.getText().toString()).child("car_no").setValue(carNo_editText.getText().toString());
+                    databaseReference.child("Users").child(userName_editText.getText().toString()).child("ph_no").setValue(phno_editText.getText().toString());
+                    databaseReference.child("Users").child(userName_editText.getText().toString()).child("pin").setValue(pin_editText.getText().toString());
+                    databaseReference.child("Users").child(userName_editText.getText().toString()).child("email").setValue(email_editText.getText().toString().toLowerCase(Locale.ROOT));
+                    databaseReference.child("Users").child(userName_editText.getText().toString()).child("parking").setValue(AdminDetails_class.getInstance().parking);
+                    databaseReference.child("Users").child(userName_editText.getText().toString()).child("token").setValue(getIntent().getStringExtra("TOKEN"));
 
-        databaseReference.child("Tokens").child(getIntent().getStringExtra("TOKEN")).setValue(userName_editText.getText().toString());
+                    databaseReference.child("Wallet").child(userName_editText.getText().toString()).setValue(5000);
 
-        databaseReference.child("Subscription").child(userName_editText.getText().toString()).child("valid").setValue("0");
-        databaseReference.child("Subscription").child(userName_editText.getText().toString()).child("Duration").setValue("0");
-        databaseReference.child("Subscription").child(userName_editText.getText().toString()).child("due_date").setValue("0");
-        databaseReference.child("Subscription").child(userName_editText.getText().toString()).child("time").setValue("0");
+                    databaseReference.child("Tokens").child(getIntent().getStringExtra("TOKEN")).setValue(userName_editText.getText().toString());
 
-        databaseReference.child("Parking_users").child(AdminDetails_class.getInstance().parking).child(userName_editText.getText().toString()).setValue(userName_editText.getText().toString());
+                    databaseReference.child("Subscription").child(userName_editText.getText().toString()).child("valid").setValue("0");
+                    databaseReference.child("Subscription").child(userName_editText.getText().toString()).child("Duration").setValue("0");
+                    databaseReference.child("Subscription").child(userName_editText.getText().toString()).child("due_date").setValue("0");
+                    databaseReference.child("Subscription").child(userName_editText.getText().toString()).child("time").setValue("0");
 
-        String pushID = databaseReference.push().getKey().toString();
-        databaseReference.child("Logs").child(pushID).child("subadmin").setValue(AdminDetails_class.getInstance().getName());
-        databaseReference.child("Logs").child(pushID).child("description").setValue("created user "+userName_editText.getText().toString()+" with token number "+getIntent().getStringExtra("TOKEN"));
+                    databaseReference.child("Parking_users").child(AdminDetails_class.getInstance().parking).child(userName_editText.getText().toString()).setValue(userName_editText.getText().toString());
 
+                    String pushID = databaseReference.push().getKey().toString();
+                    databaseReference.child("Logs").child(pushID).child("subadmin").setValue(AdminDetails_class.getInstance().getName());
+                    databaseReference.child("Logs").child(pushID).child("description").setValue("created user "+userName_editText.getText().toString()+" with token number "+getIntent().getStringExtra("TOKEN"));
 
+                    finish();
 
-        finish();
+                }else {
+                    Toast.makeText(Register_user_activity.this, task.getException().toString(), Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        });
+
     }
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
