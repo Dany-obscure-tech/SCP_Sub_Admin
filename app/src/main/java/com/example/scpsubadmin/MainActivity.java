@@ -27,6 +27,7 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity {
 
     FirebaseAuth mAuth;
+    
     EditText email_editText;
     EditText pin_editText;
     Button login_Button;
